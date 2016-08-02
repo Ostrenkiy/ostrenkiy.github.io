@@ -5,8 +5,8 @@
       {
         "appID": "4562ZPB9BG.com.AlexKarpov.Stepic",
         "paths": [
-          "/course/*/syllabus", 
-          "/course/*"
+          "/course/*/syllabus/", 
+          "/course/*/"
         ]
       }
     ]
