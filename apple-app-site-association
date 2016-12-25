@@ -11,7 +11,7 @@
 "NOT /course/*/reminder",
 "NOT /course/*/news",
 "NOT /course/*/dashboard",
-"/lessons/*/step/*"
+"/lesson/*/step/*"
         ]
       }
     ]
