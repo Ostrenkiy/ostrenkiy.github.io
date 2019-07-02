@@ -1,0 +1,640 @@
+{
+    "views": [
+        {
+            "type": "list",
+            "name": "places-list",
+            "supported_cells" : [ "place-card" ],
+            "attributes": {
+                "support_pagination": true
+            },
+            "actions": {
+                "load": "load-places-page"
+            }
+        },
+        {
+            "type": "list",
+            "name": "quests-list",
+            "supported_cells" : [ "quest-card" ],
+            "attributes": {
+                "support_pagination": false,
+                "has_header": true,
+            },
+            "actions": {
+                "load": "load-quests-page"
+            }
+        },
+        {
+            "type": "section-card",
+            "name": "place-card",
+            "attributes": {
+                "title_color": "#FFFFFF",
+                "title": "",
+                "tap_url": "https://google.com"
+            },
+            "actions": {
+                "tap": "tap-place-card-open-detail"
+            }
+        },
+        {
+            "type": "quest-card",
+            "name": "quest-card",
+            "attributes": {
+                "title_color": "#FFFFFF",
+                "title": "",
+                "tap_url": "https://google.com"
+            },
+            "actions": {
+                "tap": "tap-place-card-open-detail"
+            }
+        },
+        {
+            "type": "webpage",
+            "name": "webpage",
+            "attributes": {
+                "url": "https://google.com"
+            }
+        },
+        {
+            "type": "detail-container",
+            "name": "place-detail",
+            "attributes": {
+                "is_favorite_enabled": true
+            },
+            "subviews": ["place-tags", "place-info", "place-map", "place-taxi", "place-restaurants", "detail-place-events"],
+            "actions": {
+                "load": "load-place-detail",
+                "toggle_favorite": "toggle-detail-favorite"
+            }
+        },
+        {
+            "type": "detail-tags",
+            "name": "place-tags",
+            "attributes": {
+            }
+        },
+        {
+            "type": "detail-info",
+            "name": "place-info",
+            "attributes": {
+                "text": "initial info"
+            }
+        },
+        {
+            "type": "detail-map",
+            "name": "place-map",
+            "attributes": {
+                "lat": null,
+                "lon": null
+            }
+        },
+        {
+            "type": "detail-taxi",
+            "name": "place-taxi",
+            "attributes": {
+            }
+        },
+        {
+            "type": "detail-horizontal-list",
+            "name": "place-restaurants",
+            "item": "detail-restaurants-item",
+            "attributes": {
+                "title": "Restaurants nearby",
+                "allow_location": true
+            },
+            "actions": {
+                "load": "load-restaurants-detail"
+            }
+        },
+        {
+            "type": "section-card",
+            "name": "detail-restaurants-item",
+            "attributes": {
+            },
+            "actions": {
+                "tap": "tap-restaurant-card-open-detail"
+            }
+        },
+        {
+            "type": "detail-vertical-list",
+            "name": "detail-place-events",
+            "item": "detail-event-item",
+            "attributes": {
+                "title": "Events"
+            },
+            "actions": {
+                "load": "load-events-detail"
+            }
+        },
+        {
+            "type": "section-card",
+            "name": "detail-event-item",
+            "attributes": {
+                "title_color": "#FFFFFF",
+                "title": "",
+                "tap_url": "https://google.com"
+            },
+            "actions": {
+                "tap": "tap-event-card-open-detail"
+            }
+        },
+        {
+            "type": "detail-container",
+            "name": "restaurant-detail",
+            "attributes": {
+                "cover_url": "",
+                "title": ""
+            },
+            "subviews": [ "restaurant-info", "restaurant-map", "restaurant-restaurants"],
+            "actions": {
+                "load": "load-restaurant-detail",
+                "toggle_favorite": "toggle-detail-favorite"
+            }
+        },
+        {
+            "type": "detail-info",
+            "name": "restaurant-info",
+            "attributes": {
+                "text": "initial info"
+            }
+        },
+        {
+            "type": "detail-map",
+            "name": "restaurant-map",
+            "attributes": {
+                "lat": null,
+                "lon": null
+            }
+        },
+        {
+            "type": "detail-horizontal-list",
+            "name": "restaurant-restaurants",
+            "item": "detail-restaurants-item",
+            "attributes": {
+                "title": "Restaurants nearby",
+                "allow_location": true
+            },
+            "actions": {
+                "load": "load-restaurants-detail"
+            }
+        },
+        {
+            "type": "detail-container",
+            "name": "event-detail",
+            "attributes": {
+                "cover_url": "",
+                "title": ""
+            },
+            "subviews": [ "event-info", "event-map"],
+            "actions": {
+                "load": "load-event-detail",
+                "toggle_favorite": "toggle-detail-favorite"
+            }
+        },
+        {
+            "type": "detail-info",
+            "name": "event-info",
+            "attributes": {
+                "text": "initial info"
+            }
+        },
+        {
+            "type": "detail-map",
+            "name": "event-map",
+            "attributes": {
+                "lat": null,
+                "lon": null
+            }
+        }
+    ],
+    "actions": [
+        {
+            "name": "load-events-detail",
+            "type": "load",
+            "request": {
+                "url": "https://mf.technolab.com.ru/v1/screens/events",
+                "headers":
+                {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "x-app-token": "fd31f6e0-ddd7-44c4-bac2-3095a47ff1eb"
+                },
+                "type": "get",
+                "parameters":
+                {
+                    "query[dictionary_data.place]": "{{action.id}}"
+                }
+            },
+            "response": {
+                "deserializer": "events-detail-list-deserializer",
+                "deserializers": [
+                    {
+                        "name": "events-detail-list-deserializer",
+                        "type": "object",
+                        "map": {
+                            "target": "detail-place-events",
+                            "objects":
+                            {
+                                "detail-event-item.{{iterator#0}}.title": "{{data.items.{{iterator#0}}.title}}",
+                                "detail-event-item.{{iterator#0}}.image_path": "{{data.items.{{iterator#0}}.images.0.image}}",
+                                "detail-event-item.{{iterator#0}}.id": "{{data.items.{{iterator#0}}.id}}",
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "load-place-detail",
+            "type": "load",
+            "request": {
+                "url": "https://mf.technolab.com.ru/v1/screens/place",
+                "headers":
+                {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "x-app-token": "fd31f6e0-ddd7-44c4-bac2-3095a47ff1eb",
+                    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZDA4N2Q3NTdmNTJhYTAwMTdhMmRmYTkiLCJ1dWlkIjoiMjkyMGY1YjEtMjFlNC00ZTYzLWExMzUtMTA0MzNiZmMyYjVlIiwiZXhwIjoxODcxODc3NDkzLCJpYXQiOjE1NjA4Mzc0OTN9.GIBF8yAfBvc0-Gtwfsj5TiKzyr-6pfLDiNWgKkBxdtw"
+                },
+                "type": "get",
+                "parameters":
+                {
+                    "id": "{{action.id}}"
+                }
+            },
+            "response": {
+                "deserializer": "load-place-detail-deserializer",
+                "deserializers": [
+                    {
+                        "name": "load-place-detail-deserializer",
+                        "type": "object",
+                        "parameters": {
+                            "object_name": "item"
+                        },
+                        "map": {
+                            "target": "place-detail",
+                            "objects": {
+                                "id": "{{data.item.id}}",
+                                "entity_type": "place",
+                                "is_favorite": "{{data.item.is_favorite}}",
+                                "title": "{{data.item.title}}",
+                                "images.{{iterator#0}}.image": "{{data.item.images.{{iterator#0}}.image}}",
+                                "subtitle": "{{data.place_types.0.title}}",
+                                "place-info.text": "{{data.item.description}}",
+                                "place-map.lat": "{{data.item.coordinates.lat}}",
+                                "place-map.lon": "{{data.item.coordinates.lng}}",
+                                "place-map.address": "{{data.item.address}}",
+                                "place-tags.items.{{iterator#0}}.title": "{{data.tags.{{iterator#0}}.title}}"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "load-event-detail",
+            "type": "load",
+            "request": {
+                "url": "https://mf.technolab.com.ru/v1/screens/event",
+                "headers":
+                {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "x-app-token": "fd31f6e0-ddd7-44c4-bac2-3095a47ff1eb",
+                    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZDA4N2Q3NTdmNTJhYTAwMTdhMmRmYTkiLCJ1dWlkIjoiMjkyMGY1YjEtMjFlNC00ZTYzLWExMzUtMTA0MzNiZmMyYjVlIiwiZXhwIjoxODcxODc3NDkzLCJpYXQiOjE1NjA4Mzc0OTN9.GIBF8yAfBvc0-Gtwfsj5TiKzyr-6pfLDiNWgKkBxdtw"
+                },
+                "type": "get",
+                "parameters":
+                {
+                    "id": "{{action.id}}"
+                }
+            },
+            "response": {
+                "deserializer": "load-event-detail-deserializer",
+                "deserializers": [
+                    {
+                        "name": "load-event-detail-deserializer",
+                        "type": "object",
+                        "parameters": {
+                            "object_name": "item"
+                        },
+                        "map": {
+                            "target": "event-detail",
+                            "objects": {
+                                "id": "{{data.item.id}}",
+                                "entity_type": "event",
+                                "is_favorite": "{{data.item.is_favorite}}",
+                                "title": "{{data.item.title}}",
+                                "images.{{iterator#0}}.image": "{{data.item.images.{{iterator#0}}.image}}",
+                                "subtitle": "{{data.event_types.0.title}}",
+                                "event-info.text": "{{data.item.description}}",
+                                "event-map.lat": "{{data.places.0.coordinates.lat}}",
+                                "event-map.lon": "{{data.places.0.coordinates.lng}}",
+                                "event-map.address": "{{data.places.0.address}}"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "load-restaurant-detail",
+            "type": "load",
+            "request": {
+                "url": "https://mf.technolab.com.ru/v1/screens/restaurant",
+                "headers":
+                {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "x-app-token": "fd31f6e0-ddd7-44c4-bac2-3095a47ff1eb",
+                    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZDA4N2Q3NTdmNTJhYTAwMTdhMmRmYTkiLCJ1dWlkIjoiMjkyMGY1YjEtMjFlNC00ZTYzLWExMzUtMTA0MzNiZmMyYjVlIiwiZXhwIjoxODcxODc3NDkzLCJpYXQiOjE1NjA4Mzc0OTN9.GIBF8yAfBvc0-Gtwfsj5TiKzyr-6pfLDiNWgKkBxdtw"
+                },
+                "type": "get",
+                "parameters":
+                {
+                    "id": "{{action.id}}"
+                }
+            },
+            "response": {
+                "deserializer": "load-restaurant-detail-deserializer",
+                "deserializers": [
+                    {
+                        "name": "load-restaurant-detail-deserializer",
+                        "type": "object",
+                        "parameters": {
+                            "object_name": "item"
+                        },
+                        "map": {
+                            "target": "restaurant-detail",
+                            "objects": {
+                                "id": "{{data.item.id}}",
+                                "entity_type": "restaurant",
+                                "is_favorite": "{{data.item.is_favorite}}",
+                                "title": "{{data.item.title}}",
+                                "images.{{iterator#0}}.image": "{{data.item.images.{{iterator#0}}.image}}",
+                                "restaurant-info.text": "{{data.item.description}}",
+                                "restaurant-map.lat": "{{data.item.coordinates.lat}}",
+                                "restaurant-map.lon": "{{data.item.coordinates.lng}}",
+                                "restaurant-map.address": "{{data.item.address}}"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "load-restaurants-detail",
+            "type": "load",
+            "request": {
+                "url": "https://mf.technolab.com.ru/v1/screens/restaurants",
+                "headers":
+                {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "x-app-token": "fd31f6e0-ddd7-44c4-bac2-3095a47ff1eb"
+                },
+                "type": "get",
+                "parameters":
+                {
+                    "query[dictionary_data.restaurants]": "{{action.id}}"
+                }
+            },
+            "response": {
+                "deserializer": "load-restaurants-detail-deserializer",
+                "deserializers": [
+                    {
+                        "name": "load-restaurants-detail-deserializer",
+                        "type": "object",
+                        "parameters": {
+                            "object_name": "item"
+                        },
+                        "map": {
+                            "target": "place-restaurants",
+                            "objects": {
+                                "detail-restaurants-item.{{iterator#0}}.title": "{{data.items.{{iterator#0}}.title}}",
+                                "detail-restaurants-item.{{iterator#0}}.image_path": "{{data.items.{{iterator#0}}.images.0.image}}",
+                                "detail-restaurants-item.{{iterator#0}}.id": "{{data.items.{{iterator#0}}.id}}",
+                                "detail-restaurants-item.{{iterator#0}}.lat": "{{data.items.{{iterator#0}}.coordinates.lat}}",
+                                "detail-restaurants-item.{{iterator#0}}.lon": "{{data.items.{{iterator#0}}.coordinates.lng}}"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "toggle-detail-favorite",
+            "type": "load",
+            "request": {
+                "url": "https://mf.technolab.com.ru/v1/favorites",
+                "headers":
+                {
+                    "Content-Type": "application/json",
+                    "x-app-token": "fd31f6e0-ddd7-44c4-bac2-3095a47ff1eb",
+                    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZDA4N2Q3NTdmNTJhYTAwMTdhMmRmYTkiLCJ1dWlkIjoiMjkyMGY1YjEtMjFlNC00ZTYzLWExMzUtMTA0MzNiZmMyYjVlIiwiZXhwIjoxODcxODc3NDkzLCJpYXQiOjE1NjA4Mzc0OTN9.GIBF8yAfBvc0-Gtwfsj5TiKzyr-6pfLDiNWgKkBxdtw"
+                },
+                "type": "{{action.method_type}}",
+                "parameters":
+                {
+                    "type": "{{sender.entity_type}}",
+                    "resource": "{{sender.id}}"
+                }
+            },
+            "response": {
+                "deserializer": "favorite-detail-deserializer",
+                "deserializers": [
+                    {
+                        "name": "favorite-detail-deserializer",
+                        "type": "object",
+                        "parameters": {
+                            "object_name": "item"
+                        },
+                        "map": {
+                            "objects": {
+                                "is_favorite": "{{action.target_state}}"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "tap-place-card-open-detail",
+            "type": "open-module",
+            "module_parameters": {
+                "type": "detail",
+                "name": "place-detail",
+                "attributes.id": "{{sender.id}}"
+            },
+            "transition_parameters": {
+                "transition_type": "modal"
+            }
+        },
+        {
+            "name": "tap-restaurant-card-open-detail",
+            "type": "open-module",
+            "module_parameters": {
+                "type": "detail",
+                "name": "restaurant-detail",
+                "attributes.id": "{{sender.id}}"
+            },
+            "transition_parameters": {
+                "transition_type": "modal"
+            }
+        },
+        {
+            "name": "tap-event-card-open-detail",
+            "type": "open-module",
+            "module_parameters": {
+                "type": "detail",
+                "name": "event-detail",
+                "attributes.id": "{{sender.id}}"
+            },
+            "transition_parameters": {
+                "transition_type": "modal"
+            }
+        },
+        {
+            "name": "tap-restaurant-card-open-detail",
+            "type": "open-module",
+            "module_parameters": {
+                "type": "detail",
+                "name": "restaurant-detail",
+                "attributes.id": "{{sender.id}}"
+            },
+            "transition_parameters": {
+                "transition_type": "modal"
+            }
+        },
+        {
+            "name": "tap-event-card-open-detail",
+            "type": "open-module",
+            "module_parameters": {
+                "type": "detail",
+                "name": "event-detail",
+                "attributes.id": "{{sender.id}}"
+            },
+            "transition_parameters": {
+                "transition_type": "modal"
+            }
+        },
+        {
+            "name": "tap-section-card-open-section",
+            "type": "open-module",
+            "module_parameters": {
+                "type": "list",
+                "name": "places-list"
+            },
+            "transition_parameters": {
+                "transition_type": "modal"
+            }
+        },
+        {
+            "name": "tap-section-card-open-url",
+            "type": "open-module",
+            "module_parameters": {
+                "type": "webpage",
+                "name": "webpage",
+                "attributes.url": "{{sender.tap_url}}"
+            },
+            "transition_parameters": {
+                "transition_type": "modal"
+            }
+        },
+        {
+            "name": "load-places-page",
+            "type": "load",
+            "request": {
+                "url": "https://mf.technolab.com.ru/v1/screens/places",
+                "headers":
+                {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "x-app-token": "fd31f6e0-ddd7-44c4-bac2-3095a47ff1eb"
+                },
+                "type": "get",
+                "parameters":
+                {
+                    "page": "{{action.page}}"
+                }
+            },
+            "response": {
+                "deserializer": "places-named-list-deserializer",
+                "deserializers": [
+                    {
+                        "name": "places-named-list-deserializer",
+                        "type": "object",
+                        "map": {
+                            "target": "places-list",
+                            "objects":
+                            {
+                                "place-card.{{iterator#0}}.title": "{{data.items.{{iterator#0}}.title}}",
+                                "place-card.{{iterator#0}}.image_path": "{{data.items.{{iterator#0}}.images.0.image}}",
+                                "place-card.{{iterator#0}}.id": "{{data.items.{{iterator#0}}.id}}",
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "load-quests-page",
+            "type": "load",
+            "request": {
+                "url": "https://mf-stage.navigator.technolab.com.ru/v1/screens/byshort/5c9a3d50d69fdb0017f98d97",
+                "headers":
+                {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "x-app-token": "fd31f6e0-ddd7-44c4-bac2-3095a47ff1eb"
+                },
+                "type": "get",
+                "parameters":
+                {
+                    "lng": 55.736212,
+                    "lat": 37.613317
+                }
+            },
+            "response": {
+                "deserializer": "quests-named-list-deserializer",
+                "deserializers": [
+                    {
+                        "name": "quests-named-list-deserializer",
+                        "type": "object",
+                        "map": {
+                            "target": "quests-card",
+                            "objects":
+                            {
+                                "header.id": "{{data.header.id}}",
+                                "header.title": "{{data.header.id}}",
+                                "header.description": "{{data.header.description}}",
+                                "header.image": "{{data.header.images.0.image}}",
+                                "header.color.r": "{{data.header.images.0.avg.r}}",
+                                "header.color.g": "{{data.header.images.0.avg.g}}",
+                                "header.color.b": "{{data.header.images.0.avg.b}}",
+                                "header.color.a": "{{data.header.images.0.avg.a}}",
+                                "quest-card.{{iterator#0}}.id": "{{data.items.{{iterator#0}}.id}}",
+                                "quest-card.{{iterator#0}}.title": "{{data.items.{{iterator#0}}.title}}",
+                                "quest-card.{{iterator#0}}.place": "{{data.items.{{iterator#0}}.substitution.place_for_item}}",
+                                "quest-card.{{iterator#0}}.radius": "{{data.items.{{iterator#0}}.radius}}",
+                                "quest-card.{{iterator#0}}.question": "{{data.items.{{iterator#0}}.question}}",
+                                "quest-card.{{iterator#0}}.answers.{{iterator#1}}": "{{data.items.{{iterator#0}}.answers.{{iterator#1}}}}",
+                                "quest-card.{{iterator#0}}.image": "{{data.items.{{iterator#0}}.images.0.image}}",
+                                "quest-card.{{iterator#0}}.status": "{{data.quest.items.{{iterator#0}}.status}}",
+                                "places.{{iterator#0}}.id" : "{{data.places.{{iterator#0}}.id}}",
+                                "places.{{iterator#0}}.title" : "{{data.places.{{iterator#0}}.title}}",
+                                "places.{{iterator#0}}.address" : "{{data.places.{{iterator#0}}.address}}",
+                                "places.{{iterator#0}}.coordinates.lng" : "{{data.places.{{iterator#0}}.coordinates.lng}}",
+                                "places.{{iterator#0}}.coordinates.lat" : "{{data.places.{{iterator#0}}.coordinates.lat}}"
+                            },
+                            "substitutions": [
+                                {
+                                    "name": "place_for_item",
+                                    "source": "items",
+                                    "target": "places",
+                                    "fields": {
+                                        "source": "places_ids.0",
+                                        "target": "id",
+                                        "extract": "address"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
