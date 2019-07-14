@@ -5,7 +5,8 @@
             "name": "places-list",
             "supported_cells" : [ "place-card" ],
             "attributes": {
-                "support_pagination": true
+                "support_pagination": true,
+                "allow_location": true
             },
             "actions": {
                 "load": "load-places-page"
@@ -27,12 +28,16 @@
             "type": "section-card",
             "name": "place-card",
             "attributes": {
+                "is_favorite_enabled": true,
+                "is_sharing_enabled": true,
                 "title_color": "#FFFFFF",
                 "title": "",
                 "tap_url": "https://google.com"
             },
             "actions": {
-                "tap": "tap-place-card-open-detail"
+                "tap": "tap-place-card-open-detail",
+                "toggle_favorite": "toggle-detail-favorite",
+                "share": "share-place-detail"
             }
         },
         {
@@ -58,12 +63,24 @@
             "type": "detail-container",
             "name": "place-detail",
             "attributes": {
-                "is_favorite_enabled": true
+                "is_favorite_enabled": true,
+                "is_bottom_button_enabled": true,
+                "bottom_button_title": "Купить билеты"
             },
-            "subviews": ["place-tags", "place-info", "place-map", "place-taxi", "place-restaurants", "detail-place-events"],
+            "subviews": [ "place-share", "place-tags", "place-info", "place-map", "place-taxi", "place-restaurants", "detail-place-events"],
             "actions": {
                 "load": "load-place-detail",
-                "toggle_favorite": "toggle-detail-favorite"
+                "toggle_favorite": "toggle-detail-favorite",
+                "open-module": "tap-section-card-open-url",
+                "share": "share-place-detail"
+            }
+        },
+        {
+            "type": "detail-share",
+            "name": "place-share",
+            "attributes": {
+                "title": "Расскажите друзьям",
+                "button_title": "Поделиться"
             }
         },
         {
@@ -144,10 +161,19 @@
                 "cover_url": "",
                 "title": ""
             },
-            "subviews": [ "restaurant-info", "restaurant-map", "restaurant-restaurants"],
+            "subviews": [ "restaurant-share", "restaurant-info", "restaurant-map", "restaurant-restaurants"],
             "actions": {
                 "load": "load-restaurant-detail",
-                "toggle_favorite": "toggle-detail-favorite"
+                "toggle_favorite": "toggle-detail-favorite",
+                "share": "share-restaurant-detail"
+            }
+        },
+        {
+            "type": "detail-share",
+            "name": "restaurant-share",
+            "attributes": {
+                "title": "Расскажите друзьям",
+                "button_title": "Поделиться"
             }
         },
         {
@@ -281,7 +307,8 @@
                                 "place-map.lat": "{{data.item.coordinates.lat}}",
                                 "place-map.lon": "{{data.item.coordinates.lng}}",
                                 "place-map.address": "{{data.item.address}}",
-                                "place-tags.items.{{iterator#0}}.title": "{{data.tags.{{iterator#0}}.title}}"
+                                "place-tags.items.{{iterator#0}}.title": "{{data.tags.{{iterator#0}}.title}}",
+                                "bottom_button_url": "https://google.com"
                             }
                         }
                     }
@@ -543,7 +570,10 @@
                 "headers":
                 {
                     "Content-Type": "application/x-www-form-urlencoded",
-                    "x-app-token": "fd31f6e0-ddd7-44c4-bac2-3095a47ff1eb"
+                    "x-app-token": "fd31f6e0-ddd7-44c4-bac2-3095a47ff1eb",
+                    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZDA4N2Q3NTdmNTJhYTAwMTdhMmRmYTkiLCJ1dWlkIjoiMjkyMGY1YjEtMjFlNC00ZTYzLWExMzUtMTA0MzNiZmMyYjVlIiwiZXhwIjoxODcxODc3NDkzLCJpYXQiOjE1NjA4Mzc0OTN9.GIBF8yAfBvc0-Gtwfsj5TiKzyr-6pfLDiNWgKkBxdtw",
+                    "X-User-Latitude": "{{action.lat}}",
+                    "X-User-Longitude": "{{action.lon}}"
                 },
                 "type": "get",
                 "parameters":
@@ -564,10 +594,54 @@
                                 "place-card.{{iterator#0}}.title": "{{data.items.{{iterator#0}}.title}}",
                                 "place-card.{{iterator#0}}.image_path": "{{data.items.{{iterator#0}}.images.0.image}}",
                                 "place-card.{{iterator#0}}.id": "{{data.items.{{iterator#0}}.id}}",
+                                "place-card.{{iterator#0}}.is_favorite": "{{data.items.{{iterator#0}}.is_favorite}}",
+                                "place-card.{{iterator#0}}.entity_type": "place",
+                                "place-card.{{iterator#0}}.lat": "{{data.items.{{iterator#0}}.coordinates.lat}}",
+                                "place-card.{{iterator#0}}.lon": "{{data.items.{{iterator#0}}.coordinates.lng}}"
                             }
                         }
                     }
                 ]
+            }
+        },
+        {
+            "name": "share-place-detail",
+            "type": "share",
+            "sharing_parameters": {
+                "type": "branch_object",
+                "title": "{{sender.title}}",
+                "image_path": "{{sender.image_path}}"
+            },
+            "module_parameters": {
+                "type": "detail",
+                "name": "place-detail",
+                "attributes.id": "{{sender.id}}"
+            }
+        },
+        {
+            "name": "share-restaurant-detail",
+            "type": "share",
+            "sharing_parameters": {
+                "type": "branch_object",
+                "title": "{{sender.title}}",
+                "image_path": "{{sender.image_path}}"
+            },
+            "module_parameters": {
+                "type": "detail",
+                "name": "restaurant-detail",
+                "attributes.id": "{{sender.id}}"
+            }
+        },
+        {
+            "name": "share_url",
+            "type": "share",
+            "sharing_parameters": {
+                "type": "url",
+                "attributes.url": "{{sender.share_url}}"
+            },
+            "module_parameters": {
+                "type": "url",
+                "attributes.url": "{{sender.share_url}}"
             }
         },
         {
